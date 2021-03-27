@@ -1,0 +1,269 @@
+---
+title: "GenoPlotR: A versatile package to visualize gene context and synteny comparisons"
+author: Arturo Vera-Ponce de Leon
+output: html_document
+---
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: Black;
+  text-align: center;
+}
+h4.author { 
+    font-size: 25px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#GenoPlotR Basic Code:
+
+###To perform a basic plot using this library you first need to download and install the *genoPlotR* package, you can find it at:
+
+[link](http://genoplotr.r-forge.r-project.org/)
+To install:
+
+```{r}
+#install.packages("genoPlotR")
+```
+*If it is already installed you do not need to run this line*
+
+##Once you have installed you need to import it into R like:
+
+```{r}
+library(genoPlotR)
+
+```
+***
+> We are going to use other practical libraries such as:
+
+1. **dplyr**
+ + To modify, parse and edit tables and data frames
+2. **xlsx**
+ + To read tables directly from Excel worksheet
+
+
+```{r}
+library(dplyr)
+library(xlsx)
+
+```
+#Inputs to Genoplot:
+
+##*genoPlotR* needs as an input a data frame containing genes, their  start and end positions as well as the DNA strand (forward +/reverse -) they are codified. The easy way to do it is by reading a General Feature Format (GFF) table like this one::
+
+![](C:/Users/veraponcedeleon.1/Box Sync/2019/Job_presentation_R/Data/images/image3.png)
+
+> Now let´s read a small gff from Excel 'xlsx' file
+
+```{r}
+singleGff <- read.xlsx("gff_single.xlsx",sheetIndex = 1, header = F)
+singleGff
+class(singleGff)
+```
+
+##As you see this gff file has all the elements necessary for plotting however you need to select the columns *genoPlot* needs (genome name, start, end and strand) 
+
+>let's do a simple plot:
+
+ **First you need to name the columns in the *singleGff* data frame:**
+```{r}
+names <- c("genome",	"pulid",	"protein_id",	"contig", "start",	"end",	"strand",	"dist",	"protein_name","annot")
+colnames(singleGff) <- names
+singleGff
+```
+
+**Now we can taking advantage of R data frames and select the useful columns by typing their names to generate a new dataframe just like genoPlot ask for**
+
+```{r}
+singleDF <- data.frame(name=singleGff$annot,
+                   start= singleGff$start,
+                   end=singleGff$end,
+                   strand=singleGff$strand)
+singleDF
+```
+**Next, we can use this *singleDF* data frame to create a *dna_seg* object**
+*(dna_seg is a function from genoPlotR)*
+```{r}
+dna_seg <- dna_seg(singleDF)
+class(dna_seg)
+dna_seg
+```
+
+
+>This is the minimal information you need for plotting so let's print it using the *plot_gene_map* function from *genoPlot*
+
+**As genoplot works with list type objects you first must transform the dna_seg object into a list**
+
+```{r}
+dna_segs <- list(dna_seg)
+```
+
+Then you can call up the *plot_gene_map* function
+
+```{r}
+plot_gene_map(dna_segs = dna_segs)
+```
+
+
+**Additionally, genoPlot is able to add annotations to the genes.**
+
+ * For doing this we need to parse the *name* column (which has the annotations) from the *dna_seg* object by using the *annotation* function from *genoPlot*. You can also use this function to indicate the direction of the text (*rot* for the rotation angle) and the possition in the arrow (gene) representation (*middle* if you like it in the center of the arrow)
+
+```{r}
+annot <- annotation(x1=middle(dna_seg), 
+                    text=dna_seg$name, rot=18)
+class(annot)
+annot
+```
+
+>**With these objects (*dna_segs* and *annotations*) now we can create a plot with all the genes and their annotation using *plot_gene_map* function:**
+
+```{r}
+dna_segs <- list(dna_seg)
+plot_gene_map(dna_segs=dna_segs,annotations = annot)
+
+```
+
+>As you can see now we have created a plot with arrows (genes) and names (annotations), but it is difficult to differentiate among all the genes and annotations
+
+**So lets add a color code for each different gene**
+
+To do this, we need to add a new column to the *singleDF* data frame using a color code we like,
+  In this example we will use an *ifelse* loop to add a color depending to the annotation from the *singleDF* object we are using *grepl* function to look and extract the genes we want
+
+We want to display:
+
+ 1. All GH genes in green
+ 2. All susC genes in purple
+ 3. All susD genes in orange
+ 4. Any other gene in gray
+
+**Now Using this new datafame we just need to modify the first *singleDF* data frame  adding the color colum like this:**
+```{r}
+singleDF$col <- ifelse(grepl("GH", singleGff$annot),"yellowgreen",
+                          ifelse(grepl("susC",singleGff$annot), "purple",
+                                 ifelse(grepl("susD",singleGff$annot),"orange",
+                                        "gray")))
+singleDF
+```
+**We can modify a little bit the previous code to produce new plots but now filling the arrows (genes) with the colors we chose**
+
+  * Filling the arrows can be done by adding the *fill* flag to the *dna_seg* and specify to use the new column color 
+  
+```{r}
+dna_segColor <- dna_seg(singleDF,fill=singleDF$col)
+annotColor <- annotation(x1=middle(dna_segColor), 
+                    text=dna_segColor$name, rot=18)
+dnasegsColor<- list(dna_segColor)
+plot_gene_map(dna_segs=dnasegsColor,annotations = annotColor)
+```
+
+#We already have the basic plot but GenoplotR is useful to analyze syntenic comparisons as well. 
+
+ * Now we can compare two different loci from two different genomes.
+
+**Reading an excel gff table with two loci**
+
+```{r}
+multipleGff <- read.xlsx("gff_two.xlsx",sheetIndex = 1, header=F)
+Names <- c("genome",	"pulid",	"protein_id",	"contig", "start",	"end",	"strand",	"dist",	"protein_name","annot")
+colnames(multipleGff) <- Names
+```
+
+As genoplot uses a list of dna_segs for plotting we need to generate one *dna_seg* for each locus. For doing this, we can split the *multipleGff* dataframe using a for loop and then save them into a list object *list.data*
+
+```{r}
+list.data<-list()
+for (i in 1:length(levels(multipleGff$genome))){
+  a<-levels(multipleGff$genome)[[i]]
+  list.data[[i]] <- dplyr::filter(multipleGff,multipleGff$genome==a)
+}
+```
+
+As we want that each gene will be displayed in different colors we can generate a color column directly within this list. We can create a function and then apply to all elemnts to the list using the *lapply* function like this:
+
+```{r}
+color  <- function(x) {
+  x$color <- ifelse(grepl("GH", x$annot),"yellowgreen",
+                    ifelse(grepl("susC",x$annot), "purple",
+                           ifelse(grepl("susD",x$annot),"orange",
+                                  "gray")))
+  return(x)
+}
+list.data <- lapply(list.data,color)
+```
+
+Then we can name each dataframe with the genome name of each locus using the *genome* column from the multipleGff dataframe like:
+
+```{r}
+LEVELS <- as.vector(levels(multipleGff$genome))
+names(list.data) <- LEVELS
+  
+```
+
+**Now we have the list we can use lapply function again to generate a list of *dna_seg* objects and their *annotations* one per each loci in each genome**
+
+```{r}
+#Obtaining dna_segments
+DF <- function(x){
+  DF.x <- data.frame(name=x$annot,
+                     start= x$start,
+                     end=x$end,
+                     strand=x$strand,
+                     col=x$color)
+}
+
+for.segments <- lapply(list.data,DF)
+segment <- function(x){
+  dna_seg.x <- dna_seg(x,fill =x$col)
+}
+
+dna_segsMultiple <- lapply(for.segments,segment)
+
+#Obtainig annotation
+annota <- function(x){
+  mid <- middle(x)
+  annot <- annotation(x1=mid, text=x$name, rot=18)
+}
+annotsMultiple <- lapply(dna_segsMultiple,annota)
+```
+
+> Here we can plot and see if our code has worked or not
+
+```{r}
+plot_gene_map(dna_segs=dna_segsMultiple,annotations = annotsMultiple)
+```
+
+**Now we need to create the second main object used by genoplot a *comparison dataframe*. We basically need to tell genoplot the position of the homologous genes in each locus. For this we can use the start and end columns in the dataframes ** 
+
+```{r}
+comparison1 <- comparison(data.frame(start1=sort(dna_segsMultiple$PAB214$end,decreasing = TRUE),
+                                     end1=sort(dna_segsMultiple$PAB214$start,decreasing=TRUE),
+                                     start2=dna_segsMultiple$PAB224$start,
+                                     end2=dna_segsMultiple$PAB224$end,
+                                     col="#BFBFBF80"))
+```
+*remember if the genes are in the reverse chain you need to specify first the end and then the start inverting the orden by using the decreasing function*
+
+**As genoplot likes to use list we need to save the comparison into a list**
+
+```{r}
+comparisons <- list(comparison1)
+```
+
+
+> Now we can plot our syntenic genes using again the *plot_gene_map* fucntion
+
+
+```{r}
+plot_gene_map(dna_segs=dna_segsMultiple,annotations = annotsMultiple, comparisons = comparisons)
+```
+

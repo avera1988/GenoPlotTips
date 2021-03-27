@@ -1,0 +1,264 @@
+---
+title: "GenoplotR: A versatil package to visualize gene context and synteny comparisons"
+author: Arturo Vera-Ponce de Leon
+output: html_document
+---
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: Black;
+  text-align: center;
+}
+h4.author { 
+    font-size: 25px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+</style>
+
+[link](http://genoplotr.r-forge.r-project.org/)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#*The amount of gene and genome data obtained by next-generation sequencing technologies generates a need for comparative visualization tools.*
+
+##GenoPlotR Basic Code:
+
+###To perform a basic plot using GenoPlotR you need to import the library genoPlotR like:
+
+```{r}
+library(genoPlotR)
+
+```
+***
+> Othe useful libraries:
+
+1. **dplyr**
+ + Modify,parse and edit tables and dataframes
+2. **xlsx**
+ + Manipulate excel worksheets
+
+
+```{r}
+library(dplyr)
+library(xlsx)
+
+```
+#Inputs to GenoPlot:
+##genoPlotR uses as main object:
+** *dna_seg* : which represent segments of DNA containing genes, their length and the strain (+ or -) **
+
+To generate these object you need to 'feed' *dna_seg* with a data frame containing these elements. The easy way to do it is by reading a General Feature Format (GFF) Table:
+
+
+
+
+> Now let´s read a small gff from xlsx file
+
+```{r}
+singleGff <- read.xlsx("gff_single.xlsx",sheetIndex = 1, header = F)
+singleGff
+class(singleGff)
+```
+As you see these gff file has all the elements necessary for plotting let's do a simple plot:
+
+ **First you need to name the colums in the new data frame:**
+```{r}
+names <- c("genome",	"pulid",	"protein_id",	"contig", "start",	"end",	"strand",	"dist",	"protein_name","annot")
+colnames(singleGff) <- names
+singleGff
+```
+**Now genoPlot ask for a dataframe with the name, start, end and strand**
+```{r}
+singleDF <- data.frame(name=singleGff$annot,
+                   start= singleGff$start,
+                   end=singleGff$end,
+                   strand=singleGff$strand)
+singleDF
+```
+**Next, we can use this dataframe to create a *dna_seg* object**
+```{r}
+dna_seg <- dna_seg(singleDF)
+class(dna_seg)
+dna_seg
+```
+**Additionally, genoPlot is able to add annotations to the genes for this we need to parse the annotation colum and to indicate into the dataframe the possition and direction of these annotations**
+```{r}
+annot <- annotation(x1=middle(dna_seg), 
+                    text=dna_seg$name, rot=18)
+class(annot)
+annot
+```
+
+>**With these trhee data frames now we can create a plot with the possition and annotation using the *plot_gene_map* function like:**
+
+```{r}
+dnasegs <- list(dna_seg)
+plot_gene_map(dna_segs=dnasegs,annotations = annot)
+
+```
+
+
+**Remember genoPlotR uses a list of *dna_seg* objects for plotting**
+
+>As you can see now we have created a plot with arrows and names, but it is difficult to differentiate among all different genes and annotations
+
+**So lets add a color code for each different gene**
+
+For this, we need to add a new column to the singleDF using the color code we like,
+  so let's use an *ifelse* loop and look for the annotation by *grepl* function. We want:
+
+ 1. All GH genes in green
+ 2. All susC genes in purple
+ 3. All susD genes in orange
+ 4. Any other gene in gray
+
+```{r}
+singleGff$color <- ifelse(grepl("GH", singleGff$annot),"yellowgreen",
+                          ifelse(grepl("susC",singleGff$annot), "purple",
+                                 ifelse(grepl("susD",singleGff$annot),"orange",
+                                        "gray")))
+singleGff
+```
+
+**Now Using this new datafame we just need to modify the first *singleDF* data frame  adding the color colum like this:**
+```{r}
+singleDFColor <- data.frame(name=singleGff$annot,
+                   start= singleGff$start,
+                   end=singleGff$end,
+                   strand=singleGff$strand,
+                   col=singleGff$color)
+singleDFColor
+```
+**We can modify a little bit the previous code to produce new plots**
+
+  * Filling the arrows can be done by adding the *fill* flag to the *dna_seg* and specify to use the new column color 
+  
+```{r}
+dna_segC <- dna_seg(singleDFColor,fill=singleDFColor$col)
+annotC <- annotation(x1=middle(dna_segC), 
+                    text=dna_segC$name, rot=18)
+annotations <- list(annot,annotC)
+dnasegs <- list(dna_seg,dna_segC)
+plot_gene_map(dna_segs=dnasegs,annotations = annotations)
+
+```
+
+
+> With all of these we can now create a script for ploting multiple genes
+
+**Let's do it**
+
+We want to create a plot of mutiple polysaccharide utilization loci (PUL) in some genomes.
+ 
+ * Creating the PUL object by reading a gff table with all PULs from different genomes
+
+```{r}
+PUL <- read.xlsx("gff_multiple.xlsx",sheetIndex = 1,header = F)
+
+```
+
+Let's name the columns in the data frame
+
+```{r}
+
+Names <- c("genome",	"pulid",	"protein_id",	"contig", "start",	"end",	"strand",	"dist",	"protein_name","annot")
+colnames(PUL) <- Names
+
+```
+ Now let's take a look into the new data frame
+```{r}
+head(PUL)
+tail(PUL)
+```
+
+
+**We need to create multiple data frames one per each loci. The best way to do it is using a for loop and store all the DF into a table lie this:**
+
+```{r}
+list.data<-list()
+for (i in 1:length(levels(PUL$genome))){
+  a<-levels(PUL$genome)[[i]]
+  list.data[[i]] <- dplyr::filter(PUL,PUL$genome==a)
+}
+
+```
+
+Looking into the table.
+
+*As in R using for loops is not good programing practice now we are going to use the lapply function to show all elements in the table*
+
+```{r}
+lapply(list.data,function(x){head(x,2)})
+```
+>To name all the elements in a table 
+
+```{r}
+LEVELS <- as.vector(levels(PUL$genome))
+names(list.data) <- LEVELS
+```
+
+Looking into the table again
+```{r}
+lapply(list.data,function(x){head(x,2)})
+```
+**Now adding colors to each gene.**
+
+ * We need to create a custom function and then use the *lapply* R function to apply our function to all elements of the table
+```{r}
+#Adding color
+color  <- function(x) {
+  x$color <- ifelse(grepl("GH", x$annot),"yellowgreen",
+                  ifelse(grepl("susC",x$annot), "purple",
+                         ifelse(grepl("susD",x$annot),"orange",
+                                "gray")))
+  return(x)
+}
+list.data <- lapply(list.data,color)
+
+```
+**Then we Use these functions to create *dna_seg* objects and annotations **
+```{r}
+#Function for segments
+DF <- function(x){
+  DF.x <- data.frame(name=x$annot,
+                     start= x$start,
+                     end=x$end,
+                     strand=x$strand,
+                     col=x$color)
+}
+#Obtaining segments
+for.segments <- lapply(list.data,DF)
+segment <- function(x){
+  dna_seg.x <- dna_seg(x,fill =x$col)
+}
+dna_segs <- lapply(for.segments,segment)
+#Obtaing annotation
+annots <- lapply(dna_segs, function(x){
+  mid <- middle(x)
+  annot <- annotation(x1=mid, text=x$name, rot=18)
+})
+```
+
+**Finally we can plot these wiht *plot_gene_map* **
+
+
+```{r}
+plot_gene_map(dna_segs=dna_segs,annotations = annots)
+```
+
+
+**At the end we can save this plot into a pdf using the *pdf* function **
+
+
+```{r}
+pdf("MyFirstGenoPlotR.pdf")
+plot_gene_map(dna_segs=dna_segs,annotations = annots)
+dev.off()
+```
+
+
+
