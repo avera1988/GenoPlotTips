@@ -1,0 +1,9 @@
+Genome	ID	Start	End	Strand	Gene_id	Gene	Product	ProtID
+DO_DO	scaffold84_size8867	457	807	-	DO_DO_00846	glpK	Glycerol kinase	DO_DO_00846
+DO_DO	scaffold84_size8867	833	1537	-	DO_DO_00847	glpF	putative glycerol uptake facilitator protein	DO_DO_00847
+DO_DO	scaffold84_size8867	1624	2244	-	DO_DO_00848	lhgO_1	L-2-hydroxyglutarate oxidase LhgO	DO_DO_00848
+DO_DO	scaffold84_size8867	2364	2735	-	DO_DO_00849	lhgO_2	L-2-hydroxyglutarate oxidase LhgO	DO_DO_00849
+DO_DO	scaffold84_size8867	3004	4305	+	DO_DO_00850	hyp	hypothetical protein	DO_DO_00850
+DO_DO	scaffold84_size8867	4643	5467	-	DO_DO_00851	ycsE	5-amino-6-(5-phospho-D-ribitylamino)uracil phosphatase YcsE	DO_DO_00851
+DO_DO	scaffold84_size8867	5478	5819	-	DO_DO_00852	trxA	Thioredoxin	DO_DO_00852
+DO_DO	scaffold84_size8867	6630	8012	+	DO_DO_00853	glpT	Glycerol-3-phosphate transporter	DO_DO_00853

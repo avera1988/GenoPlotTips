@@ -1,0 +1,5 @@
+Genome	ID	Start	End	Strand	Gene_id	Gene	Product	ProtID
+S.ixo.WSS	VBWQ01000080.1	94	1662	-	FCO83_01920	glpK	glycerol kinase GlpK	TLF26210.1
+S.ixo.WSS	VBWQ01000080.1	1688	2461	-	FCO83_01925	FCO83_01925	aquaporin family protein	TLF26211.1
+S.ixo.WSS	VBWQ01000080.1	2480	3592	-	FCO83_01930	glpO	type 2 glycerol-3-phosphate oxidase	TLF26212.1
+S.ixo.WSS	VBWQ01000080.1	3861	4537	+	FCO83_01935	hyp	hypothetical protein	TLF26213.1

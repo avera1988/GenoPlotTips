@@ -1,0 +1,12 @@
+Genome	ID	Start	End	Strand	Gene_id	Gene	Product	ProtID
+DC_DC	scaffold28_size8963	8656	8904	-	DC_DC_00360	hyp	hypothetical protein	DC_DC_00360
+DC_DC	scaffold29_size8904	62	916	-	DC_DC_00361	glpK_1	Glycerol kinase	DC_DC_00361
+DC_DC	scaffold29_size8904	970	1320	-	DC_DC_00362	glpK_2	Glycerol kinase	DC_DC_00362
+DC_DC	scaffold29_size8904	1346	2119	-	DC_DC_00363	glpF	putative glycerol uptake facilitator protein	DC_DC_00363
+DC_DC	scaffold29_size8904	2138	2758	-	DC_DC_00364	lhgO_1	L-2-hydroxyglutarate oxidase LhgO	DC_DC_00364
+DC_DC	scaffold29_size8904	2878	3249	-	DC_DC_00365	lhgO_2	L-2-hydroxyglutarate oxidase LhgO	DC_DC_00365
+DC_DC	scaffold29_size8904	3518	4819	+	DC_DC_00366	hyp	hypothetical protein	DC_DC_00366
+DC_DC	scaffold29_size8904	4955	5779	-	DC_DC_00367	ycsE	5-amino-6-(5-phospho-D-ribitylamino)uracil phosphatase YcsE	DC_DC_00367
+DC_DC	scaffold29_size8904	5790	6131	-	DC_DC_00368	trxA	Thioredoxin	DC_DC_00368
+DC_DC	scaffold29_size8904	6489	6665	+	DC_DC_00369	hyp	hypothetical protein	DC_DC_00369
+DC_DC	scaffold29_size8904	6671	8053	+	DC_DC_00370	glpT	Glycerol-3-phosphate transporter	DC_DC_00370

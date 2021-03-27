@@ -1,0 +1,6 @@
+Genome	ID	Start	End	Strand	Gene_id	Gene	Product	ProtID
+S.mell.kc3	NZ_AGBZ02000001.1	140150	141331	+	SPM_RS00670	glpO	type 2 glycerol-3-phosphate oxidase	WP_004027690.1
+S.mell.kc3	NZ_AGBZ02000001.1	141349	142860	+	SPM_RS00675	glpK	glycerol kinase GlpK	WP_004027691.1
+S.mell.kc3	NZ_AGBZ02000001.1	143105	143395	-	SPM_RS00680	hyp	hypothetical protein	WP_004027693.1
+S.mell.kc3	NZ_AGBZ02000001.1	143501	145078	-	SPM_RS00685	hyp	hypothetical protein	WP_004027694.1
+S.mell.kc3	NZ_AGBZ02000001.1	145227	146291	-	SPM_RS00690	hyp	hypothetical protein	WP_004027695.1
